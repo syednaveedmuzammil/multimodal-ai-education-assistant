@@ -1,0 +1,111 @@
+/* Fade */
+
+@keyframes fadeIn {
+
+  from {
+
+    opacity: 0;
+
+  }
+
+  to {
+
+    opacity: 1;
+
+  }
+
+}
+
+/* Slide */
+
+@keyframes slideUp {
+
+  from {
+
+    opacity: 0;
+
+    transform: translateY(20px);
+
+  }
+
+  to {
+
+    opacity: 1;
+
+    transform: translateY(0);
+
+  }
+
+}
+
+/* Scale */
+
+@keyframes scaleIn {
+
+  from {
+
+    transform: scale(.95);
+
+    opacity: 0;
+
+  }
+
+  to {
+
+    transform: scale(1);
+
+    opacity: 1;
+
+  }
+
+}
+
+/* Float */
+
+@keyframes floating {
+
+  0% {
+
+    transform: translateY(0);
+
+  }
+
+  50% {
+
+    transform: translateY(-5px);
+
+  }
+
+  100% {
+
+    transform: translateY(0);
+
+  }
+
+}
+
+/* Utility */
+
+.fade-in {
+
+  animation: fadeIn .5s ease;
+
+}
+
+.slide-up {
+
+  animation: slideUp .45s ease;
+
+}
+
+.scale-in {
+
+  animation: scaleIn .35s ease;
+
+}
+
+.floating {
+
+  animation: floating 3s ease-in-out infinite;
+
+}
