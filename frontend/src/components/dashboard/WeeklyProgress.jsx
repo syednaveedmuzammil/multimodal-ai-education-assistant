@@ -1,4 +1,5 @@
 import Card from "@/components/ui/Card";
+import SectionHeader from "@/components/common/SectionHeader";
 import { WEEKLY_PROGRESS } from "@/data/dashboardData";
 
 export default function WeeklyProgress() {

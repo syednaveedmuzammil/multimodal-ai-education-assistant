@@ -35,7 +35,10 @@ export default function App() {
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/dashboard" element={<Dashboard />} />
+      <Route
+        path="/"
+        element={<Navigate to="/dashboard" replace />}
+      />
 
       <Route path="/login" element={<Login />} />
 
@@ -88,7 +91,7 @@ export default function App() {
       />
 
       {/* Unknown Route */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 }

@@ -1,6 +1,7 @@
 import { Flame } from "lucide-react";
 
 import Card from "@/components/ui/Card";
+import SectionHeader from "@/components/common/SectionHeader";
 import { STUDY_STREAK } from "@/data/dashboardData";
 
 export default function StudyStreak() {

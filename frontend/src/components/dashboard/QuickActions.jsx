@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-import { QUICK_ACTIONS } from "@/data/dashboardData";
+import { QUICK_ACTIONS } from "@/constants/dashboard";
 import QuickActionCard from "./QuickActionCard";
 import SectionHeader from "@/components/common/SectionHeader";
 
