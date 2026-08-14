@@ -1,4 +1,3 @@
-import React from "react";
 import { NavLink } from "react-router-dom";
 
 import {
@@ -12,6 +11,7 @@ import {
   BarChart3,
   User,
   Settings,
+  X,
 } from "lucide-react";
 
 import APP_CONFIG from "@/config/appConfig";
@@ -76,7 +76,24 @@ export default function Sidebar({
           </div>
         </div>
       </div>
-
+      {/* ================= Close Button ================= */}
+      <button
+        type="button"
+        onClick={onClose}
+        className="
+          ml-auto
+          lg:hidden
+          p-2
+          rounded-lg
+          text-muted
+          hover:bg-card
+          hover:text-white
+          transition
+        "
+        aria-label="Close sidebar"
+      >
+        <X size={20} />
+      </button>
       {/* ================= Menu ================= */}
 
       <nav className="flex-1 mt-5 px-4">

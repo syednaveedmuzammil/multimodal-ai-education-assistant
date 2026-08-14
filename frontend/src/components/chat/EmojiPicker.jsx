@@ -1,4 +1,3 @@
-import React from "react";
 import { Smile } from "lucide-react";
 import Toast from "@/components/ui/Toast";
 
