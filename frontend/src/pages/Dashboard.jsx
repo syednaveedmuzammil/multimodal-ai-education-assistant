@@ -1,3 +1,4 @@
+import React from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
 
 import PageHeader from "@/components/common/PageHeader";
@@ -15,34 +16,45 @@ import {
 export default function Dashboard() {
   return (
     <DashboardLayout>
-      <PageHeader
-        title="Dashboard"
-        subtitle="Welcome back! Continue your AI-powered learning journey."
-      />
 
-      <WelcomeBanner />
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-      <SearchHero />
+        {/* ================= Page Header ================= */}
 
-      <QuickActions />
+        <PageHeader
+          title="Dashboard"
+          subtitle="Welcome back! Continue your AI-powered learning journey."
+        />
 
-      <DashboardStats />
+        {/* ================= Dashboard Content ================= */}
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-10">
+        <div className="space-y-10">
 
-        <div className="xl:col-span-2">
+          <WelcomeBanner />
 
-          <RecentActivity />
+          <SearchHero />
+
+          <QuickActions />
+
+          <DashboardStats />
+
+          {/* ================= Activity + Streak ================= */}
+
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+            <div className="xl:col-span-2">
+              <RecentActivity />
+            </div>
+
+            <StudyStreak />
+
+          </div>
+
+          {/* ================= Weekly Progress ================= */}
+
+          <WeeklyProgress />
 
         </div>
-
-        <StudyStreak />
-
-      </div>
-
-      <div className="mt-10">
-
-        <WeeklyProgress />
 
       </div>
 

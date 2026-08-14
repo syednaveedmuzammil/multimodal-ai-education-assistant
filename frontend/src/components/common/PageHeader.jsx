@@ -1,3 +1,6 @@
+import React from "react";
+import PropTypes from "prop-types";
+
 export default function PageHeader({
   title,
   subtitle,
@@ -21,3 +24,9 @@ export default function PageHeader({
     </div>
   );
 }
+
+PageHeader.propTypes = {
+  title: PropTypes.string.isRequired,
+  subtitle: PropTypes.string,
+  action: PropTypes.node,
+};

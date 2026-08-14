@@ -1,3 +1,4 @@
+import React from "react";
 import Card from "@/components/ui/Card";
 import SectionHeader from "@/components/common/SectionHeader";
 import { WEEKLY_PROGRESS } from "@/data/dashboardData";

@@ -1,50 +1,51 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
-/*
-|--------------------------------------------------------------------------
-| Pages
-|--------------------------------------------------------------------------
-|
-| These pages will be created in the next modules.
-| For now they are placeholders.
-|
-*/
+// ==============================
+// Public Pages
+// ==============================
 
-import Home from "./pages/Home";
-import Dashboard from "./pages/Dashboard";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Chat from "./pages/Chat";
-import Notes from "./pages/Notes";
-import Quiz from "./pages/Quiz";
-import Profile from "./pages/Profile";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
+
+// ==============================
+// Implemented Protected Pages
+// ==============================
+
+import Dashboard from "@/pages/Dashboard";
+import Chat from "@/pages/Chat";
+import Notes from "@/pages/Notes";
+import Quiz from "@/pages/Quiz";
+import Profile from "@/pages/Profile";
+
+// ==============================
+// Route Protection
+// ==============================
+
 import ProtectedRoute from "@/components/common/ProtectedRoute";
-
-
-/*
-|--------------------------------------------------------------------------
-| Route Protection
-|--------------------------------------------------------------------------
-|
-| TODO:
-| Replace with actual authentication check using JWT
-|
-*/
 
 export default function App() {
   return (
     <Routes>
-      {/* Public Routes */}
+
+      {/* =========================================
+          Public Routes
+      ========================================= */}
+
       <Route
-        path="/"
-        element={<Navigate to="/dashboard" replace />}
+        path="/login"
+        element={<Login />}
       />
 
-      <Route path="/login" element={<Login />} />
+      <Route
+        path="/register"
+        element={<Register />}
+      />
 
-      <Route path="/register" element={<Register />} />
 
-      {/* Protected Routes */}
+      {/* =========================================
+          Protected Routes
+      ========================================= */}
+
       <Route
         path="/dashboard"
         element={
@@ -90,8 +91,36 @@ export default function App() {
         }
       />
 
-      {/* Unknown Route */}
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+
+      {/* =========================================
+          Default Route
+      ========================================= */}
+
+      <Route
+        path="/"
+        element={
+          <Navigate
+            to="/dashboard"
+            replace
+          />
+        }
+      />
+
+
+      {/* =========================================
+          Future / Unknown Routes
+      ========================================= */}
+
+      <Route
+        path="*"
+        element={
+          <Navigate
+            to="/dashboard"
+            replace
+          />
+        }
+      />
+
     </Routes>
   );
 }

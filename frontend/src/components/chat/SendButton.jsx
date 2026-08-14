@@ -1,4 +1,5 @@
-import { SendHorizonal } from "lucide-react";
+import React from "react";
+import { SendHorizontal } from "lucide-react";
 
 export default function SendButton({
   onClick,
@@ -21,7 +22,7 @@ export default function SendButton({
       disabled:opacity-50
       disabled:cursor-not-allowed"
     >
-      <SendHorizonal
+      <SendHorizontal
         size={18}
         className="text-white"
       />

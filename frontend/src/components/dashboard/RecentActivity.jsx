@@ -1,3 +1,4 @@
+import React from "react";
 import { Clock3 } from "lucide-react";
 
 import Card from "@/components/ui/Card";

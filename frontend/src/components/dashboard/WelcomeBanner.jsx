@@ -1,3 +1,4 @@
+import React from "react";
 import Card from "@/components/ui/Card";
 
 export default function WelcomeBanner() {
@@ -27,7 +28,7 @@ export default function WelcomeBanner() {
       <img
         src="/images/hero-learning.svg"
         alt="Learning"
-        className="w-72 hidden lg:block"
+        className="w-full max-w-xs object-contain"
       />
 
     </Card>

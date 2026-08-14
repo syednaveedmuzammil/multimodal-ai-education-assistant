@@ -1,3 +1,4 @@
+import React from "react";
 import {
   FileStack,
   ClipboardCheck,
@@ -34,6 +35,15 @@ export default function DashboardStats() {
       <SectionHeader
         title="Learning Overview"
       />
+
+      <div className="
+        grid
+        grid-cols-1
+        sm:grid-cols-2
+        xl:grid-cols-4
+        gap-5
+      ">
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
         {DASHBOARD_STATS.map((stat) => {

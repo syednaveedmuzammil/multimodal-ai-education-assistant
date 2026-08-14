@@ -1,6 +1,7 @@
+import React from "react";
 import { Paperclip } from "lucide-react";
 import { ALLOWED_FILE_TYPES } from "@/constants/chat";
-
+import Toast from "@/components/ui/Toast";
 export default function AttachmentMenu({
   onSelect = () => Toast.success("File selected successfully."),
 }) {

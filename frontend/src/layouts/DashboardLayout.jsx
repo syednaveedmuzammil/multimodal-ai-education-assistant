@@ -1,12 +1,9 @@
-import { useState } from "react";
-
+import React, { useState } from "react";
 import Navbar from "@/components/common/Navbar";
 import Sidebar from "@/components/common/Sidebar";
 import Footer from "@/components/common/Footer";
 
-export default function DashboardLayout({
-  children,
-}) {
+export default function DashboardLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -24,33 +21,42 @@ export default function DashboardLayout({
       {sidebarOpen && (
         <div
           className="
-          fixed
-          inset-0
-          bg-black/50
-          z-30
-          lg:hidden"
+            fixed
+            inset-0
+            bg-black/50
+            z-30
+            lg:hidden
+          "
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* ================= Main ================= */}
+      {/* ================= Main Application ================= */}
 
       <div className="lg:ml-72 min-h-screen flex flex-col">
 
+        {/* ================= Navbar ================= */}
+
         <Navbar
           onMenuClick={() =>
-            setSidebarOpen(!sidebarOpen)
+            setSidebarOpen((previous) => !previous)
           }
         />
 
+        {/* ================= Page Content ================= */}
+
         <main
           className="
-          flex-1
-          p-6
-          md:p-8"
+            flex-1
+            min-w-0
+            bg-background
+            overflow-x-hidden
+          "
         >
           {children}
         </main>
+
+        {/* ================= Footer ================= */}
 
         <Footer />
 
