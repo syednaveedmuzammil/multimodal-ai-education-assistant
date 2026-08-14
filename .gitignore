@@ -1,0 +1,88 @@
+# ==========================================
+# Node / React / Vite
+# ==========================================
+
+node_modules/
+frontend/node_modules/
+
+dist/
+frontend/dist/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# ==========================================
+# Python / FastAPI Backend
+# ==========================================
+
+__pycache__/
+*.py[cod]
+*.pyo
+
+backend/__pycache__/
+backend/**/__pycache__/
+
+venv/
+.venv/
+backend/venv/
+backend/.venv/
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ==========================================
+# IDE / Editors
+# ==========================================
+
+.vscode/
+.idea/
+
+# ==========================================
+# Build / Cache / Logs
+# ==========================================
+
+build/
+coverage/
+.cache/
+*.log
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ==========================================
+# OS
+# ==========================================
+
+.DS_Store
+Thumbs.db
+
+# ==========================================
+# AI / ML Model Files
+# ==========================================
+
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.h5
+*.keras
+*.pkl
+*.joblib
+*.bin
+
+# ==========================================
+# Archives
+# ==========================================
+
+*.zip
+*.rar
+*.7z
