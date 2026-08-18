@@ -5,6 +5,13 @@ import {
   useState,
 } from "react";
 
+// import {
+//   getCurrentUser,
+//   loginUser,
+//   logoutUser,
+//   registerUser,
+// } from "@/services/authService";
+
 const AuthContext = createContext(null);
 
 const AUTH_STORAGE_KEY = "learnmate_auth";
