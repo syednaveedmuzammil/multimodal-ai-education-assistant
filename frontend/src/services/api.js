@@ -1,12 +1,37 @@
 import axios from "axios";
 
-import APP_CONFIG from "@/config/appConfig";
+import axiosConfig, {
+  attachAuthToken,
+} from "@/config/axiosConfig";
 
-const api = axios.create({
-  baseURL: APP_CONFIG.apiBaseUrl || "http://localhost:8000/api",
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+const api = axios.create(axiosConfig);
+
+/*
+ * ============================================================
+ * Request Interceptor
+ * ============================================================
+ */
+
+api.interceptors.request.use(
+  attachAuthToken,
+  (error) => Promise.reject(error)
+);
+
+/*
+ * ============================================================
+ * Response Interceptor
+ * ============================================================
+ *
+ * For now we simply pass successful responses through.
+ *
+ * JWT expiration handling will be added when the FastAPI
+ * backend is connected.
+ * ============================================================
+ */
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => Promise.reject(error)
+);
 
 export default api;

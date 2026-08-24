@@ -5,21 +5,23 @@ import api from "@/services/api";
  * Authentication Service
  * ============================================================
  *
- * Authentication API layer for LearnMate AI.
+ * Frontend authentication API layer.
  *
- * Current frontend development uses MOCK authentication in
- * AuthContext because the FastAPI backend is not implemented yet.
+ * Expected FastAPI endpoints:
  *
- * These functions define the contract that will be used once
- * the backend is connected.
+ * POST /auth/register
+ * POST /auth/login
+ * GET  /auth/me
+ *
+ * The backend will return a JWT access token after
+ * successful authentication.
  * ============================================================
  */
 
 /**
  * Register a new user.
  *
- * Backend:
- * POST /api/auth/register
+ * POST /auth/register
  */
 export async function registerUser({
   name,
@@ -36,10 +38,9 @@ export async function registerUser({
 }
 
 /**
- * Login a user.
+ * Login an existing user.
  *
- * Backend:
- * POST /api/auth/login
+ * POST /auth/login
  */
 export async function loginUser({
   email,
@@ -56,8 +57,11 @@ export async function loginUser({
 /**
  * Get the currently authenticated user.
  *
- * Backend:
- * GET /api/auth/me
+ * GET /auth/me
+ *
+ * The Axios interceptor automatically attaches:
+ *
+ * Authorization: Bearer <token>
  */
 export async function getCurrentUser() {
   const response = await api.get("/auth/me");
@@ -66,13 +70,12 @@ export async function getCurrentUser() {
 }
 
 /**
- * Logout.
+ * Backend logout.
  *
- * Currently handled entirely on the frontend.
+ * Currently the frontend clears its local token.
  *
- * TODO (Backend Integration):
- * Add a backend logout/revocation request if the final
- * authentication architecture requires token revocation.
+ * If the backend later implements token revocation,
+ * this function can be updated accordingly.
  */
 export function logoutUser() {
   return Promise.resolve();
