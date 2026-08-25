@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import {
+  Link,
+  Navigate,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import {
   Eye,
   EyeOff,
@@ -14,11 +19,17 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import APP_CONFIG from "@/config/appConfig";
 
+
 export default function Register() {
-  const { register, isAuthenticated, loading } = useAuth();
+  const {
+    register,
+    isAuthenticated,
+    loading,
+  } = useAuth();
 
   const navigate = useNavigate();
   const location = useLocation();
+
 
   const [formData, setFormData] = useState({
     name: "",
@@ -27,9 +38,15 @@ export default function Register() {
     confirmPassword: "",
   });
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] =
+    useState(false);
+
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState(false);
+
+  const [isSubmitting, setIsSubmitting] =
+    useState(false);
+
 
   /*
    * ==========================================================
@@ -46,6 +63,7 @@ export default function Register() {
     );
   }
 
+
   /*
    * ==========================================================
    * Input Handler
@@ -53,13 +71,17 @@ export default function Register() {
    */
 
   const handleChange = (event) => {
-    const { name, value } = event.target;
+    const {
+      name,
+      value,
+    } = event.target;
 
     setFormData((previous) => ({
       ...previous,
       [name]: value,
     }));
   };
+
 
   /*
    * ==========================================================
@@ -77,20 +99,42 @@ export default function Register() {
       confirmPassword,
     } = formData;
 
-    if (!name || !email || !password || !confirmPassword) {
-      toast.error("Please fill in all fields.");
+
+    if (
+      !name ||
+      !email ||
+      !password ||
+      !confirmPassword
+    ) {
+      toast.error(
+        "Please fill in all fields."
+      );
+
       return;
     }
 
-    if (password.length < 6) {
-      toast.error("Password must contain at least 6 characters.");
+
+    /*
+     * Backend requires a minimum of 8 characters.
+     */
+
+    if (password.length < 8) {
+      toast.error(
+        "Password must contain at least 8 characters."
+      );
+
       return;
     }
+
 
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match.");
+      toast.error(
+        "Passwords do not match."
+      );
+
       return;
     }
+
 
     try {
       setIsSubmitting(true);
@@ -101,21 +145,28 @@ export default function Register() {
         password
       );
 
-      toast.success("Account created successfully!");
+      toast.success(
+        "Account created successfully!"
+      );
+
 
       /*
-       * If registration was triggered after a protected-page
-       * redirect, return the user there.
+       * If registration was triggered after a
+       * protected-page redirect, return there.
        *
        * Otherwise, go to Dashboard.
        */
 
       const redirectPath =
-        location.state?.from || "/dashboard";
+        location.state?.from ||
+        "/dashboard";
 
-      navigate(redirectPath, {
-        replace: true,
-      });
+      navigate(
+        redirectPath,
+        {
+          replace: true,
+        }
+      );
 
     } catch (error) {
       toast.error(
@@ -126,6 +177,7 @@ export default function Register() {
       setIsSubmitting(false);
     }
   };
+
 
   /*
    * ==========================================================
@@ -140,6 +192,7 @@ export default function Register() {
       </div>
     );
   }
+
 
   /*
    * ==========================================================
@@ -173,6 +226,7 @@ export default function Register() {
 
         </div>
 
+
         {/* ================= Register Card ================= */}
 
         <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-xl">
@@ -185,6 +239,7 @@ export default function Register() {
             {/* ================= Name ================= */}
 
             <div>
+
               <label
                 htmlFor="name"
                 className="block text-sm font-medium mb-2"
@@ -218,11 +273,14 @@ export default function Register() {
                 />
 
               </div>
+
             </div>
+
 
             {/* ================= Email ================= */}
 
             <div>
+
               <label
                 htmlFor="email"
                 className="block text-sm font-medium mb-2"
@@ -256,11 +314,14 @@ export default function Register() {
                 />
 
               </div>
+
             </div>
+
 
             {/* ================= Password ================= */}
 
             <div>
+
               <label
                 htmlFor="password"
                 className="block text-sm font-medium mb-2"
@@ -285,7 +346,11 @@ export default function Register() {
                 <Input
                   id="password"
                   name="password"
-                  type={showPassword ? "text" : "password"}
+                  type={
+                    showPassword
+                      ? "text"
+                      : "password"
+                  }
                   placeholder="Create a password"
                   value={formData.password}
                   onChange={handleChange}
@@ -296,7 +361,9 @@ export default function Register() {
                 <button
                   type="button"
                   onClick={() =>
-                    setShowPassword((previous) => !previous)
+                    setShowPassword(
+                      (previous) => !previous
+                    )
                   }
                   className="
                     absolute
@@ -323,11 +390,14 @@ export default function Register() {
                 </button>
 
               </div>
+
             </div>
+
 
             {/* ================= Confirm Password ================= */}
 
             <div>
+
               <label
                 htmlFor="confirmPassword"
                 className="block text-sm font-medium mb-2"
@@ -396,7 +466,9 @@ export default function Register() {
                 </button>
 
               </div>
+
             </div>
+
 
             {/* ================= Register Button ================= */}
 
@@ -413,6 +485,7 @@ export default function Register() {
             </Button>
 
           </form>
+
 
           {/* ================= Login ================= */}
 
@@ -439,6 +512,7 @@ export default function Register() {
           </div>
 
         </div>
+
 
         {/* ================= Footer ================= */}
 

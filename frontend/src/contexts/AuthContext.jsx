@@ -5,52 +5,74 @@ import {
   useState,
 } from "react";
 
-// import {
-//   getCurrentUser,
-//   loginUser,
-//   logoutUser,
-//   registerUser,
-// } from "@/services/authService";
+import {
+  getCurrentUser,
+  loginUser,
+  logoutUser,
+  registerUser,
+} from "@/services/authService";
+
+import {
+  getAccessToken,
+  removeAccessToken,
+  setAccessToken,
+} from "@/utils/storage";
+
 
 const AuthContext = createContext(null);
 
-const AUTH_STORAGE_KEY = "learnmate_auth";
+
+/*
+ * ============================================================
+ * Auth Provider
+ * ============================================================
+ */
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+
   /*
    * ==========================================================
-   * Restore authentication state
+   * Restore Authentication State
    * ==========================================================
    *
-   * Currently restores the mock authentication state from
-   * localStorage.
+   * If a JWT exists in localStorage, ask the backend whether
+   * the token is still valid.
    *
-   * TODO (Backend Integration):
-   * Replace this with JWT/token validation when FastAPI
-   * authentication is connected.
+   * This replaces the previous mock localStorage authentication.
    */
 
   useEffect(() => {
-    try {
-      const storedAuth =
-        localStorage.getItem(AUTH_STORAGE_KEY);
+    const restoreAuthentication = async () => {
+      const token = getAccessToken();
 
-      if (storedAuth) {
-        const parsedAuth = JSON.parse(storedAuth);
-
-        if (parsedAuth?.user) {
-          setUser(parsedAuth.user);
-        }
+      if (!token) {
+        setLoading(false);
+        return;
       }
-    } catch {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
-    } finally {
-      setLoading(false);
-    }
+
+      try {
+        const currentUser = await getCurrentUser();
+
+        setUser(currentUser);
+      } catch {
+        /*
+         * Token is invalid, expired, or no longer accepted
+         * by the backend.
+         */
+
+        removeAccessToken();
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    restoreAuthentication();
   }, []);
+
 
   /*
    * ==========================================================
@@ -65,36 +87,26 @@ export function AuthProvider({ children }) {
       );
     }
 
+    const response = await loginUser({
+      email,
+      password,
+    });
+
     /*
-     * MOCK AUTHENTICATION
-     *
-     * TODO (Backend Integration):
-     *
-     * const response = await authService.login({
-     *   email,
-     *   password,
-     * });
-     *
-     * setUser(response.user);
+     * Store the JWT returned by FastAPI.
      */
 
-    const mockUser = {
-      id: "mock-user-001",
-      name: email.split("@")[0],
-      email,
-    };
+    setAccessToken(response.access_token);
 
-    setUser(mockUser);
+    /*
+     * Store the authenticated user in React state.
+     */
 
-    localStorage.setItem(
-      AUTH_STORAGE_KEY,
-      JSON.stringify({
-        user: mockUser,
-      })
-    );
+    setUser(response.user);
 
-    return mockUser;
+    return response.user;
   };
+
 
   /*
    * ==========================================================
@@ -113,35 +125,24 @@ export function AuthProvider({ children }) {
       );
     }
 
-    /*
-     * MOCK REGISTRATION
-     *
-     * TODO (Backend Integration):
-     *
-     * const response = await authService.register({
-     *   name,
-     *   email,
-     *   password,
-     * });
-     */
-
-    const mockUser = {
-      id: "mock-user-001",
+    const response = await registerUser({
       name,
       email,
-    };
+      password,
+    });
 
-    setUser(mockUser);
+    /*
+     * Registration also returns a JWT, so the newly
+     * registered user is immediately authenticated.
+     */
 
-    localStorage.setItem(
-      AUTH_STORAGE_KEY,
-      JSON.stringify({
-        user: mockUser,
-      })
-    );
+    setAccessToken(response.access_token);
 
-    return mockUser;
+    setUser(response.user);
+
+    return response.user;
   };
+
 
   /*
    * ==========================================================
@@ -149,14 +150,25 @@ export function AuthProvider({ children }) {
    * ==========================================================
    */
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem(AUTH_STORAGE_KEY);
+  const logout = async () => {
+    try {
+      await logoutUser();
+    } finally {
+      /*
+       * The current backend does not maintain a token
+       * revocation list. Removing the local JWT is therefore
+       * sufficient for the current logout implementation.
+       */
+
+      removeAccessToken();
+      setUser(null);
+    }
   };
+
 
   /*
    * ==========================================================
-   * Auth State
+   * Authentication State
    * ==========================================================
    */
 
@@ -171,12 +183,14 @@ export function AuthProvider({ children }) {
     logout,
   };
 
+
   return (
     <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 }
+
 
 /*
  * ============================================================
@@ -195,5 +209,6 @@ export function useAuth() {
 
   return context;
 }
+
 
 export default AuthContext;
