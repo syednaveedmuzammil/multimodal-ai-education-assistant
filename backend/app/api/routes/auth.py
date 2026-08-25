@@ -11,6 +11,7 @@ from app.core.security import (
     verify_password,
 )
 from app.db.session import get_db
+from app.models.student_profile import StudentProfile
 from app.models.user import User
 from app.schemas.auth import (
     LoginRequest,
@@ -62,6 +63,14 @@ def register(
     )
 
     db.add(user)
+    db.flush()
+
+    profile = StudentProfile(
+        user_id=user.id,
+    )
+
+    db.add(profile)
+
     db.commit()
     db.refresh(user)
 
