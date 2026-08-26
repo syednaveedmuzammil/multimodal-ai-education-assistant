@@ -49,7 +49,8 @@ Thumbs.db
 # Application Data
 # ============================================================
 
-uploads/
+uploads/*
+!uploads/.gitkeep
 storage/
 logs/
 

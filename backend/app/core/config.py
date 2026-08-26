@@ -34,6 +34,10 @@ class Settings(BaseSettings):
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "phi3:mini"
 
+    # File Uploads
+    upload_dir: str = "uploads"
+    max_upload_size_mb: int = 20
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
