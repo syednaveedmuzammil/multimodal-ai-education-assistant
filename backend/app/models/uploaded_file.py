@@ -94,6 +94,15 @@ class UploadedFile(Base):
         back_populates="uploaded_files",
     )
 
+    extracted_content: Mapped[
+        "ExtractedContent | None"
+    ] = relationship(
+        "ExtractedContent",
+        back_populates="uploaded_file",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
+
     def __repr__(self) -> str:
         return (
             f"<UploadedFile("
