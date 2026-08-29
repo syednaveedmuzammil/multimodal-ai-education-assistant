@@ -19,6 +19,7 @@ from app.core.file_storage import (
     get_user_upload_directory,
     validate_file,
 )
+
 from app.core.config import settings
 from app.db.session import get_db
 from app.models.uploaded_file import UploadedFile
@@ -33,6 +34,11 @@ from app.services.document_processor import (
     DocumentProcessingError,
     calculate_text_statistics,
     extract_document_text,
+)
+from app.services.ocr_service import (
+    OCRProcessingError,
+    extract_text_with_ocr,
+    is_meaningful_ocr_text,
 )
 
 router = APIRouter(
@@ -568,3 +574,167 @@ def delete_uploaded_file(
     db.commit()
 
     return None
+
+@router.post(
+    "/{file_id}/ocr",
+    response_model=UploadedFileResponse,
+)
+def process_file_with_ocr(
+    file_id: int,
+    current_user: Annotated[
+        User,
+        Depends(get_current_user),
+    ],
+    db: Annotated[
+        Session,
+        Depends(get_db),
+    ],
+):
+    """
+    Run OCR on an image or scanned PDF.
+    """
+
+    uploaded_file = db.scalar(
+        select(UploadedFile).where(
+            UploadedFile.id == file_id,
+            UploadedFile.user_id
+            == current_user.id,
+        )
+    )
+
+    if uploaded_file is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="File not found.",
+        )
+
+    if uploaded_file.file_category not in {
+        "image",
+        "pdf",
+    }:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "OCR is only supported for "
+                "images and PDFs."
+            ),
+        )
+
+    file_path = Path(
+        uploaded_file.file_path
+    )
+
+    if not file_path.exists():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Stored file not found.",
+        )
+
+    uploaded_file.processing_status = (
+        "processing"
+    )
+
+    db.commit()
+
+    try:
+        extracted_text, page_count = (
+            extract_text_with_ocr(
+                file_path
+            )
+        )
+
+        if not is_meaningful_ocr_text(
+            extracted_text
+        ):
+            uploaded_file.processing_status = (
+                "failed"
+            )
+
+            db.commit()
+
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=(
+                    "OCR did not detect meaningful "
+                    "text in this file."
+                ),
+            )
+
+        character_count, word_count = (
+            calculate_text_statistics(
+                extracted_text
+            )
+        )
+
+        existing_content = db.scalar(
+            select(ExtractedContent).where(
+                ExtractedContent.uploaded_file_id
+                == uploaded_file.id,
+            )
+        )
+
+        if existing_content is None:
+            extracted_content = ExtractedContent(
+                uploaded_file_id=uploaded_file.id,
+                extracted_text=extracted_text,
+                character_count=character_count,
+                word_count=word_count,
+                page_count=page_count,
+            )
+
+            db.add(extracted_content)
+
+        else:
+            existing_content.extracted_text = (
+                extracted_text
+            )
+            existing_content.character_count = (
+                character_count
+            )
+            existing_content.word_count = (
+                word_count
+            )
+            existing_content.page_count = (
+                page_count
+            )
+
+        uploaded_file.processing_status = (
+            "completed"
+        )
+
+        db.commit()
+        db.refresh(uploaded_file)
+
+        return uploaded_file
+
+    except HTTPException:
+        raise
+
+    except OCRProcessingError as exc:
+        uploaded_file.processing_status = (
+            "failed"
+        )
+
+        db.commit()
+
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+
+    except Exception:
+        db.rollback()
+
+        uploaded_file.processing_status = (
+            "failed"
+        )
+
+        db.commit()
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=(
+                "An unexpected error occurred "
+                "while processing the file with OCR."
+            ),
+        )
