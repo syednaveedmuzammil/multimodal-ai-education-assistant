@@ -45,6 +45,15 @@ export const uploadFile = async (
   return response.data;
 };
 
+export const transcribeUploadedFile = async (
+  fileId,
+) => {
+  const response = await api.post(
+    `/uploads/${fileId}/transcribe`,
+  );
+
+  return response.data;
+};
 
 /*
  * ============================================================

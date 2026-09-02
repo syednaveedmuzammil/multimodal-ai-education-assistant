@@ -41,6 +41,12 @@ from app.services.ocr_service import (
     is_meaningful_ocr_text,
 )
 
+from app.services.whisper_service import (
+    WhisperProcessingError,
+    is_meaningful_transcription,
+    transcribe_audio,
+)
+
 router = APIRouter(
     prefix="/uploads",
     tags=["Uploads"],
@@ -736,5 +742,162 @@ def process_file_with_ocr(
             detail=(
                 "An unexpected error occurred "
                 "while processing the file with OCR."
+            ),
+        )
+
+@router.post(
+    "/{file_id}/transcribe",
+    response_model=UploadedFileResponse,
+)
+def transcribe_uploaded_audio(
+    file_id: int,
+    current_user: Annotated[
+        User,
+        Depends(get_current_user),
+    ],
+    db: Annotated[
+        Session,
+        Depends(get_db),
+    ],
+):
+    """
+    Transcribe an uploaded audio file using Whisper Tiny.
+    """
+
+    uploaded_file = db.scalar(
+        select(UploadedFile).where(
+            UploadedFile.id == file_id,
+            UploadedFile.user_id
+            == current_user.id,
+        )
+    )
+
+    if uploaded_file is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="File not found.",
+        )
+
+    if uploaded_file.file_category != "audio":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "Speech-to-text is only supported "
+                "for audio files."
+            ),
+        )
+
+    file_path = Path(
+        uploaded_file.file_path
+    )
+
+    if not file_path.exists():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Stored audio file not found.",
+        )
+
+    uploaded_file.processing_status = (
+        "processing"
+    )
+
+    db.commit()
+
+    try:
+        transcription = transcribe_audio(
+            file_path
+        )
+
+        if not is_meaningful_transcription(
+            transcription
+        ):
+            uploaded_file.processing_status = (
+                "failed"
+            )
+
+            db.commit()
+
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=(
+                    "Speech-to-text did not produce "
+                    "meaningful text."
+                ),
+            )
+
+        character_count, word_count = (
+            calculate_text_statistics(
+                transcription
+            )
+        )
+
+        existing_content = db.scalar(
+            select(ExtractedContent).where(
+                ExtractedContent.uploaded_file_id
+                == uploaded_file.id,
+            )
+        )
+
+        if existing_content is None:
+            extracted_content = ExtractedContent(
+                uploaded_file_id=uploaded_file.id,
+                extracted_text=transcription,
+                character_count=character_count,
+                word_count=word_count,
+                page_count=None,
+            )
+
+            db.add(extracted_content)
+
+        else:
+            existing_content.extracted_text = (
+                transcription
+            )
+            existing_content.character_count = (
+                character_count
+            )
+            existing_content.word_count = (
+                word_count
+            )
+            existing_content.page_count = None
+
+        uploaded_file.processing_status = (
+            "completed"
+        )
+
+        db.commit()
+        db.refresh(uploaded_file)
+
+        return uploaded_file
+
+    except HTTPException:
+        raise
+
+    except WhisperProcessingError as exc:
+        uploaded_file.processing_status = (
+            "failed"
+        )
+
+        db.commit()
+
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+
+    except Exception:
+        db.rollback()
+
+        uploaded_file.processing_status = (
+            "failed"
+        )
+
+        db.commit()
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=(
+                "An unexpected error occurred "
+                "while transcribing the audio."
             ),
         )

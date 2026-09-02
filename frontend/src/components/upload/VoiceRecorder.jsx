@@ -2,7 +2,28 @@ import {
   Mic,
   Square,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
+
+const getSupportedMimeType = () => {
+  const mimeTypes = [
+    "audio/webm;codecs=opus",
+    "audio/webm",
+    "audio/ogg;codecs=opus",
+    "audio/ogg",
+  ];
+
+  return mimeTypes.find(
+    (type) =>
+      MediaRecorder.isTypeSupported(
+        type,
+      ),
+  ) || "";
+};
 
 
 export default function VoiceRecorder({
@@ -26,7 +47,9 @@ export default function VoiceRecorder({
     return () => {
       streamRef.current
         ?.getTracks()
-        .forEach((track) => track.stop());
+        .forEach((track) =>
+          track.stop(),
+        );
     };
   }, []);
 
@@ -53,8 +76,18 @@ export default function VoiceRecorder({
 
       chunksRef.current = [];
 
+      const mimeType =
+        getSupportedMimeType();
+
       const recorder =
-        new MediaRecorder(stream);
+        mimeType
+          ? new MediaRecorder(
+              stream,
+              { mimeType },
+            )
+          : new MediaRecorder(
+              stream,
+            );
 
       mediaRecorderRef.current =
         recorder;
@@ -70,39 +103,49 @@ export default function VoiceRecorder({
       };
 
       recorder.onstop = () => {
-        const blob = new Blob(
-          chunksRef.current,
-          {
-            type:
-              recorder.mimeType ||
-              "audio/webm",
-          },
-        );
+        const actualMimeType = recorder.mimeType;
 
-        const extension =
-          recorder.mimeType.includes(
-            "ogg",
-          )
-            ? "ogg"
-            : "webm";
+        console.log("Recorded MIME type:", actualMimeType);
+
+        if (!actualMimeType) {
+          console.error("No MIME type detected.");
+          return;
+        }
+
+        const blob = new Blob(chunksRef.current, {
+          type: actualMimeType,
+        });
+
+        let extension;
+
+        if (actualMimeType.includes("webm")) {
+          extension = "webm";
+        } else if (actualMimeType.includes("ogg")) {
+          extension = "ogg";
+        } else {
+          console.error("Unsupported MIME type:", actualMimeType);
+          return;
+        }
 
         const file = new File(
           [blob],
           `voice-note-${Date.now()}.${extension}`,
           {
-            type:
-              blob.type ||
-              "audio/webm",
+            type: actualMimeType,
           },
         );
+
+        console.log("Created audio file:", {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+        });
 
         onRecordingComplete?.(file);
 
         stream
           .getTracks()
-          .forEach((track) =>
-            track.stop(),
-          );
+          .forEach((track) => track.stop());
 
         streamRef.current = null;
       };
@@ -118,15 +161,18 @@ export default function VoiceRecorder({
 
 
   const stopRecording = () => {
-    if (!mediaRecorderRef.current) {
+    const recorder =
+      mediaRecorderRef.current;
+
+    if (!recorder) {
       return;
     }
 
     if (
-      mediaRecorderRef.current.state !==
+      recorder.state !==
       "inactive"
     ) {
-      mediaRecorderRef.current.stop();
+      recorder.stop();
     }
 
     mediaRecorderRef.current = null;
@@ -156,8 +202,8 @@ export default function VoiceRecorder({
           </h3>
 
           <p className="mt-1 text-sm text-muted">
-            Record a short voice note for later
-            speech processing.
+            Record a voice note for
+            speech-to-text processing.
           </p>
 
         </div>

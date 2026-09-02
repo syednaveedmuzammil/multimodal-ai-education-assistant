@@ -11,10 +11,12 @@ import ImageUploader from "@/components/upload/ImageUploader";
 import NotesUploader from "@/components/upload/NotesUploader";
 import PdfUploader from "@/components/upload/PdfUploader";
 import UploadProgress from "@/components/upload/UploadProgress";
+import VoiceRecorder from "@/components/upload/VoiceRecorder";
 
 import {
   deleteUploadedFile,
   getUploadedFiles,
+  transcribeUploadedFile,
   uploadFile,
 } from "@/services/uploadService";
 
@@ -158,45 +160,68 @@ export default function Notes() {
    * ==========================================================
    */
 
-  const handleFileSelect = async (
-    file,
-  ) => {
-    if (uploading) {
-      return;
-    }
+const handleFileSelect = async (
+  file,
+) => {
+  if (uploading) {
+    return;
+  }
 
-    setSelectedFile(file);
-    setProgress(0);
-    setUploading(true);
+  setSelectedFile(file);
+  setProgress(0);
+  setUploading(true);
 
-    try {
-      const uploaded =
-        await uploadFile(
-          file,
-          setProgress,
+  try {
+    const uploaded =
+      await uploadFile(
+        file,
+        setProgress,
+      );
+
+    let finalFile = uploaded;
+
+    if (
+      uploaded.file_category ===
+      "audio"
+    ) {
+      toast.success(
+        "Voice note uploaded. Transcribing...",
+      );
+
+      finalFile =
+        await transcribeUploadedFile(
+          uploaded.id,
         );
-
-      setFiles((previous) => [
-        uploaded,
-        ...previous,
-      ]);
-
+    } else {
       toast.success(
         "File uploaded successfully.",
       );
-
-    } catch (error) {
-      toast.error(
-        getErrorMessage(
-          error,
-          "Unable to upload the file.",
-        ),
-      );
-
-    } finally {
-      setUploading(false);
     }
-  };
+
+    setFiles((previous) => [
+      finalFile,
+      ...previous,
+    ]);
+
+    if (
+      finalFile.file_category ===
+      "audio"
+    ) {
+      toast.success(
+        "Voice note transcribed successfully.",
+      );
+    }
+
+  } catch (error) {
+    toast.error(
+      error?.response?.data?.detail ||
+        "Unable to process the file.",
+    );
+
+  } finally {
+    setUploading(false);
+  }
+};
 
 
   /*
@@ -276,6 +301,11 @@ export default function Notes() {
 
           <NotesUploader
             onFileSelect={handleFileSelect}
+            disabled={uploading}
+          />
+
+          <VoiceRecorder
+            onRecordingComplete={handleFileSelect}
             disabled={uploading}
           />
 

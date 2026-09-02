@@ -21,6 +21,7 @@ ALLOWED_FILE_TYPES = {
         ".wav",
         ".m4a",
         ".ogg",
+        ".webm",
     },
     "text": {
         ".txt",
@@ -49,6 +50,7 @@ ALLOWED_MIME_TYPES = {
     "audio/x-wav",
     "audio/mp4",
     "audio/ogg",
+    "audio/webm",
     "text/plain",
     "text/markdown",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -138,13 +140,13 @@ def validate_file(
             "Unsupported file type."
         )
 
-    if (
-        file.content_type
-        and file.content_type not in ALLOWED_MIME_TYPES
-    ):
-        raise ValueError(
-            "Unsupported MIME type."
-        )
+    if file.content_type:
+        base_mime_type = file.content_type.split(";")[0].strip().lower()
+
+        if base_mime_type not in ALLOWED_MIME_TYPES:
+            raise ValueError(
+                "Unsupported MIME type."
+            )
 
     category = get_file_category(
         extension
