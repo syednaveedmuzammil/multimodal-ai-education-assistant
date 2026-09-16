@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.api.routes import ai
 
 from app.api.routes.auth import router as auth_router
 from app.api.routes.health import router as health_router
@@ -56,6 +57,10 @@ app.include_router(
     prefix="/api",
 )
 
+app.include_router(
+    ai.router,
+    prefix="/api",
+)
 
 # ============================================================
 # Root Endpoint
