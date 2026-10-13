@@ -14,6 +14,7 @@ import Register from "@/pages/Register";
 import Dashboard from "@/pages/Dashboard";
 import Chat from "@/pages/Chat";
 import Notes from "@/pages/Notes";
+import Summary from "@/pages/Summary";
 import Quiz from "@/pages/Quiz";
 import Profile from "@/pages/Profile";
 
@@ -26,21 +27,12 @@ import ProtectedRoute from "@/components/common/ProtectedRoute";
 export default function App() {
   return (
     <Routes>
-
       {/* =========================================
           Public Routes
       ========================================= */}
 
-      <Route
-        path="/login"
-        element={<Login />}
-      />
-
-      <Route
-        path="/register"
-        element={<Register />}
-      />
-
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
       {/* =========================================
           Protected Routes
@@ -74,6 +66,15 @@ export default function App() {
       />
 
       <Route
+        path="/summary"
+        element={
+          <ProtectedRoute>
+            <Summary />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path="/quiz"
         element={
           <ProtectedRoute>
@@ -91,36 +92,17 @@ export default function App() {
         }
       />
 
-
       {/* =========================================
           Default Route
       ========================================= */}
 
-      <Route
-        path="/"
-        element={
-          <Navigate
-            to="/dashboard"
-            replace
-          />
-        }
-      />
-
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
       {/* =========================================
           Future / Unknown Routes
       ========================================= */}
 
-      <Route
-        path="*"
-        element={
-          <Navigate
-            to="/dashboard"
-            replace
-          />
-        }
-      />
-
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 }

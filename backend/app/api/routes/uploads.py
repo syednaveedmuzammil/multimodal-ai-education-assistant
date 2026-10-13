@@ -1,3 +1,5 @@
+import logging
+import traceback
 from pathlib import Path
 from typing import Annotated
 
@@ -46,6 +48,7 @@ from app.services.whisper_service import (
     is_meaningful_transcription,
     transcribe_audio,
 )
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/uploads",
@@ -728,7 +731,15 @@ def process_file_with_ocr(
             detail=str(exc),
         ) from exc
 
-    except Exception:
+    except Exception as exc:
+        print("\n" + "=" * 70)
+        print(f"ERROR PROCESSING FILE ID: {file_id}")
+        print(f"ERROR TYPE: {type(exc).__name__}")
+        print(f"ERROR MESSAGE: {exc}")
+        print("=" * 70)
+        traceback.print_exc()
+        print("=" * 70 + "\n")
+
         db.rollback()
 
         uploaded_file.processing_status = (
@@ -741,9 +752,9 @@ def process_file_with_ocr(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=(
                 "An unexpected error occurred "
-                "while processing the file with OCR."
+                "while processing the document."
             ),
-        )
+        ) from exc
 
 @router.post(
     "/{file_id}/transcribe",

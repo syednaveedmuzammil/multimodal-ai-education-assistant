@@ -1,57 +1,53 @@
 import api from "@/services/api";
 
-
 /*
  * ============================================================
  * Upload File
  * ============================================================
  */
 
-export const uploadFile = async (
-  file,
-  onUploadProgress,
-) => {
+export const uploadFile = async (file, onUploadProgress) => {
   if (!file) {
     throw new Error("A file is required.");
   }
 
   const formData = new FormData();
-
   formData.append("file", file);
 
-  const response = await api.post(
-    "/uploads",
-    formData,
-    {
-      onUploadProgress: (progressEvent) => {
-        if (
-          !onUploadProgress ||
-          !progressEvent.total
-        ) {
-          return;
-        }
+  const response = await api.post("/uploads", formData, {
+    onUploadProgress: (progressEvent) => {
+      if (!onUploadProgress || !progressEvent.total) {
+        return;
+      }
 
-        const percentage = Math.round(
-          (progressEvent.loaded /
-            progressEvent.total) *
-            100,
-        );
+      const percentage = Math.round(
+        (progressEvent.loaded / progressEvent.total) * 100
+      );
 
-        onUploadProgress(percentage);
-      },
+      onUploadProgress(percentage);
     },
-  );
+  });
 
   return response.data;
 };
 
-export const transcribeUploadedFile = async (
-  fileId,
-) => {
-  const response = await api.post(
-    `/uploads/${fileId}/transcribe`,
-  );
+export const transcribeUploadedFile = async (fileId) => {
+  const response = await api.post(`/uploads/${fileId}/transcribe`);
+  return response.data;
+};
 
+export const processUploadedFile = async (fileId) => {
+  const response = await api.post(`/uploads/${fileId}/process`);
+  return response.data;
+};
+
+export const ocrUploadedFile = async (fileId) => {
+  const response = await api.post(`/uploads/${fileId}/ocr`);
+  return response.data;
+};
+
+export const getExtractedContent = async (fileId) => {
+  const response = await api.get(`/uploads/${fileId}/content`);
   return response.data;
 };
 
@@ -63,10 +59,8 @@ export const transcribeUploadedFile = async (
 
 export const getUploadedFiles = async () => {
   const response = await api.get("/uploads");
-
   return response.data;
 };
-
 
 /*
  * ============================================================
@@ -74,36 +68,21 @@ export const getUploadedFiles = async () => {
  * ============================================================
  */
 
-export const getUploadedFile = async (
-  fileId,
-) => {
-  const response = await api.get(
-    `/uploads/${fileId}`,
-  );
-
+export const getUploadedFile = async (fileId) => {
+  const response = await api.get(`/uploads/${fileId}`);
   return response.data;
 };
-
 
 /*
  * ============================================================
  * Get Download URL
  * ============================================================
- *
- * We return the API URL rather than downloading the file
- * through Axios because the browser can handle the actual
- * file response directly.
  */
 
-export const getFileDownloadUrl = (
-  fileId,
-) => {
-  const baseURL =
-    api.defaults.baseURL || "";
-
+export const getFileDownloadUrl = (fileId) => {
+  const baseURL = api.defaults.baseURL || "";
   return `${baseURL}/uploads/${fileId}/download`;
 };
-
 
 /*
  * ============================================================
@@ -111,10 +90,6 @@ export const getFileDownloadUrl = (
  * ============================================================
  */
 
-export const deleteUploadedFile = async (
-  fileId,
-) => {
-  await api.delete(
-    `/uploads/${fileId}`,
-  );
+export const deleteUploadedFile = async (fileId) => {
+  await api.delete(`/uploads/${fileId}`);
 };

@@ -1,9 +1,15 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, DateTime, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.models.quiz import Quiz, QuizAttempt
+    from app.models.student_profile import StudentProfile
+    from app.models.uploaded_file import UploadedFile
 
 
 class User(Base):
@@ -63,9 +69,21 @@ class User(Base):
     )
 
     uploaded_files: Mapped[list["UploadedFile"]] = relationship(
-    "UploadedFile",
-    back_populates="user",
-    cascade="all, delete-orphan",
+        "UploadedFile",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
+    quizzes: Mapped[list["Quiz"]] = relationship(
+        "Quiz",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
+    quiz_attempts: Mapped[list["QuizAttempt"]] = relationship(
+        "QuizAttempt",
+        back_populates="user",
+        cascade="all, delete-orphan",
     )
 
     def __repr__(self) -> str:
@@ -73,4 +91,4 @@ class User(Base):
             f"<User(id={self.id}, "
             f"name='{self.name}', "
             f"email='{self.email}')>"
-        )
+        )

@@ -5,6 +5,7 @@ from app.api.routes import ai
 from app.api.routes.auth import router as auth_router
 from app.api.routes.health import router as health_router
 from app.api.routes.profile import router as profile_router
+from app.api.routes.quiz import router as quiz_router
 from app.api.routes.uploads import router as uploads_router
 from app.core.config import settings
 
@@ -58,9 +59,15 @@ app.include_router(
 )
 
 app.include_router(
+    quiz_router,
+    prefix="/api",
+)
+
+app.include_router(
     ai.router,
     prefix="/api",
 )
+
 
 # ============================================================
 # Root Endpoint
